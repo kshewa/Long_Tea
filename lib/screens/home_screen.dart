@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/services/api_service.dart';
-import 'package:my_pro9/models/product.dart';
-import 'package:my_pro9/screens/checkout_screen.dart';
+import 'package:longtea_mobile/services/api_service.dart';
+import 'package:longtea_mobile/models/product.dart';
+import 'package:longtea_mobile/screens/checkout_screen.dart';
 import '../widgets/category_tab.dart';
 import '../widgets/product_card.dart';
 
@@ -31,11 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void addToCart(String name, String subtitle, String price) {
     setState(() {
-      cartItems.add({
-        'name': name,
-        'subtitle': subtitle,
-        'price': price,
-      });
+      cartItems.add({'name': name, 'subtitle': subtitle, 'price': price});
       showCartSummary = true;
     });
   }
@@ -102,8 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       CircleAvatar(
                         radius: 24,
-                        backgroundImage:
-                            AssetImage('assets/images/profile.png'),
+                        backgroundImage: AssetImage(
+                          'assets/images/profile.png',
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -143,16 +140,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                      ),
+                      border: Border.all(color: Colors.white.withOpacity(0.3)),
                     ),
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Search Tea',
-                        hintStyle:
-                            TextStyle(color: Colors.white.withOpacity(0.7)),
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                        ),
                         prefixIcon: const Icon(
                           Icons.search,
                           color: Colors.white,
@@ -236,24 +232,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Row(
                                             children: const [
                                               CategoryTab(
-                                                  title: 'All Tea',
-                                                  isSelected: true),
+                                                title: 'All Tea',
+                                                isSelected: true,
+                                              ),
                                               SizedBox(width: 8),
                                               CategoryTab(
-                                                  title: 'Smoothie Series',
-                                                  isSelected: false),
+                                                title: 'Smoothie Series',
+                                                isSelected: false,
+                                              ),
                                               SizedBox(width: 8),
                                               CategoryTab(
-                                                  title: 'Fresh Ice Cream',
-                                                  isSelected: false),
+                                                title: 'Fresh Ice Cream',
+                                                isSelected: false,
+                                              ),
                                               SizedBox(width: 8),
                                               CategoryTab(
-                                                  title: 'Kashmiri Tea',
-                                                  isSelected: false),
+                                                title: 'Kashmiri Tea',
+                                                isSelected: false,
+                                              ),
                                               SizedBox(width: 8),
                                               CategoryTab(
-                                                  title: 'Masala Tea',
-                                                  isSelected: false),
+                                                title: 'Masala Tea',
+                                                isSelected: false,
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -267,7 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // Products grid
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
+                                    horizontal: 20,
+                                  ),
                                   child: GridView.builder(
                                     itemCount: productList.length,
                                     shrinkWrap: true, // ✅ important
@@ -275,19 +277,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const NeverScrollableScrollPhysics(), // ✅ important
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10,
-                                      childAspectRatio: 0.7,
-                                    ),
+                                          crossAxisCount: 2,
+                                          mainAxisSpacing: 10,
+                                          crossAxisSpacing: 10,
+                                          childAspectRatio: 0.7,
+                                        ),
                                     itemBuilder: (context, index) {
                                       final product = productList[index];
                                       final hasSizes = product.sizes.isNotEmpty;
                                       final firstPrice = hasSizes
-                                          ? product.sizes.first.price
-                                              .toString()
+                                          ? product.sizes.first.price.toString()
                                           : '0';
-                                      final imageUrl = (product.image.url.isNotEmpty)
+                                      final imageUrl =
+                                          (product.image.url.isNotEmpty)
                                           ? product.image.url
                                           : 'https://via.placeholder.com/300x300.png?text=No+Image';
                                       return ProductCard(
@@ -298,9 +300,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         isFavorite:
                                             favorites[product.name] ?? false,
                                         onAddPressed: () => addToCart(
-                                            product.name,
-                                            product.name,
-                                            firstPrice),
+                                          product.name,
+                                          product.name,
+                                          firstPrice,
+                                        ),
                                         onFavoritePressed: () =>
                                             toggleFavorite(product.name),
                                       );
@@ -339,7 +342,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (cartItems.length > 1)
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF1E3A8A),
                                   borderRadius: BorderRadius.circular(12),
@@ -363,13 +368,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 40,
                                       height: 40,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1E3A8A)
-                                            .withOpacity(0.1),
+                                        color: const Color(
+                                          0xFF1E3A8A,
+                                        ).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Image(
                                         image: AssetImage(
-                                            'assets/images/shopping_cart.png'),
+                                          'assets/images/shopping_cart.png',
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -419,8 +426,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    foregroundColor:
-                                        const Color(0xFF1E3A8A),
+                                    foregroundColor: const Color(0xFF1E3A8A),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:my_pro9/services/session_manager.dart';
-import 'package:my_pro9/constants/api_url.dart';
+import 'package:longtea_mobile/services/session_manager.dart';
+import 'package:longtea_mobile/constants/api_url.dart';
 
 class AuthHttpClient extends http.BaseClient {
   final http.Client _inner;
@@ -13,7 +13,10 @@ class AuthHttpClient extends http.BaseClient {
     final token = await SessionManager.getAccessToken();
     final urlStr = request.url.toString();
     final isAuthEndpoint = urlStr.contains('/auth/');
-    if (!isAuthEndpoint && token != null && token.isNotEmpty && !request.headers.containsKey('Authorization')) {
+    if (!isAuthEndpoint &&
+        token != null &&
+        token.isNotEmpty &&
+        !request.headers.containsKey('Authorization')) {
       request.headers['Authorization'] = 'Bearer $token';
     }
     final originalRequest = _cloneRequest(request);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/screens/main_navigation.dart';
-import 'package:my_pro9/screens/register_screen.dart';
-import 'package:my_pro9/services/auth_service.dart'; 
+import 'package:longtea_mobile/screens/main_navigation.dart';
+import 'package:longtea_mobile/screens/register_screen.dart';
+import 'package:longtea_mobile/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,17 +35,20 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
         await Future.delayed(const Duration(milliseconds: 800));
-       Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => const MainNavigation(initialTab: 0)),
-);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainNavigation(initialTab: 0),
+          ),
+        );
       } else {
-        final List<dynamic> details = (response['details'] as List?) ?? const [];
+        final List<dynamic> details =
+            (response['details'] as List?) ?? const [];
         final detailMsg = details.isNotEmpty ? details.join('\n') : null;
-        final msg = [response['message'], detailMsg]
-            .whereType<String>()
-            .where((s) => s.trim().isNotEmpty)
-            .join('\n');
+        final msg = [
+          response['message'],
+          detailMsg,
+        ].whereType<String>().where((s) => s.trim().isNotEmpty).join('\n');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(msg.isEmpty ? 'Login failed' : msg),
@@ -55,10 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -110,7 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailOrPhoneController,
                         decoration: InputDecoration(
                           labelText: 'Email or Phone Number',
-                          prefixIcon: Icon(Icons.person, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.person,
+                            color: theme.primaryColor,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -122,7 +125,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                           // Accept either a valid email or a phone number (at least 7 digits)
                           final isEmail = value.contains('@');
-                          final isPhone = RegExp(r'^[0-9]{7,}$').hasMatch(value);
+                          final isPhone = RegExp(
+                            r'^[0-9]{7,}$',
+                          ).hasMatch(value);
                           if (!isEmail && !isPhone) {
                             return 'Enter a valid email or phone number';
                           }
@@ -135,7 +140,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: theme.primaryColor,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -144,7 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: theme.primaryColor,
                             ),
                             onPressed: () {
-                              setState(() => _obscurePassword = !_obscurePassword);
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
                             },
                           ),
                           border: OutlineInputBorder(
@@ -178,7 +188,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             elevation: 4,
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
                               : const Text(
                                   'Login',
                                   style: TextStyle(
@@ -194,7 +206,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(child: Divider()),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Text('OR', style: TextStyle(color: Colors.grey)),
+                            child: Text(
+                              'OR',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ),
                           Expanded(child: Divider()),
                         ],

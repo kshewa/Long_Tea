@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:my_pro9/models/product.dart';
-import 'package:my_pro9/models/api_response.dart';
-import 'package:my_pro9/services/http_client.dart';
+import 'package:longtea_mobile/models/product.dart';
+import 'package:longtea_mobile/models/api_response.dart';
+import 'package:longtea_mobile/services/http_client.dart';
 
 class ApiService {
   static const String baseUrl = "https://longtea-backend.onrender.com/api/v1";
@@ -39,19 +39,25 @@ class ApiService {
         queryParams['isFastingFriendly'] = isFastingFriendly.toString();
       }
 
-      final uri = Uri.parse("$baseUrl/product").replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        "$baseUrl/product",
+      ).replace(queryParameters: queryParams);
       final response = await authHttpClient.get(uri).timeout(timeout);
-      
+
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        
+
         if (jsonResponse["success"] == true) {
           return ProductListResponse.fromJson(jsonResponse);
         } else {
-          throw Exception(jsonResponse["message"] ?? "Failed to fetch products");
+          throw Exception(
+            jsonResponse["message"] ?? "Failed to fetch products",
+          );
         }
       } else {
-        throw Exception("HTTP ${response.statusCode}: ${response.reasonPhrase}");
+        throw Exception(
+          "HTTP ${response.statusCode}: ${response.reasonPhrase}",
+        );
       }
     } catch (e) {
       if (e is http.ClientException) {
@@ -73,14 +79,16 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        
+
         if (jsonResponse["success"] == true) {
           return Product.fromJson(jsonResponse["data"]);
         } else {
           throw Exception(jsonResponse["message"] ?? "Failed to fetch product");
         }
       } else {
-        throw Exception("HTTP ${response.statusCode}: ${response.reasonPhrase}");
+        throw Exception(
+          "HTTP ${response.statusCode}: ${response.reasonPhrase}",
+        );
       }
     } catch (e) {
       if (e is http.ClientException) {
@@ -101,15 +109,17 @@ class ApiService {
           .timeout(timeout);
 
       if (response.statusCode == 200) {
-    final jsonResponse = jsonDecode(response.body);
-  
+        final jsonResponse = jsonDecode(response.body);
+
         if (jsonResponse["success"] == true) {
           return List<String>.from(jsonResponse["data"] ?? []);
         } else {
           throw Exception(jsonResponse["message"] ?? "Failed to fetch series");
         }
       } else {
-        throw Exception("HTTP ${response.statusCode}: ${response.reasonPhrase}");
+        throw Exception(
+          "HTTP ${response.statusCode}: ${response.reasonPhrase}",
+        );
       }
     } catch (e) {
       if (e is http.ClientException) {

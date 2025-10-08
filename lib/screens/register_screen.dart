@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/screens/login_screen.dart';
+import 'package:longtea_mobile/screens/login_screen.dart';
 
-import 'package:my_pro9/services/register_services.dart';
-
+import 'package:longtea_mobile/services/register_services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,7 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? 'Registration successful! Please login.'),
+            content: Text(
+              result['message'] ?? 'Registration successful! Please login.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -51,10 +52,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         final List<dynamic> details = (result['details'] as List?) ?? const [];
         final detailMsg = details.isNotEmpty ? details.join('\n') : null;
-        final msg = [result['message'], detailMsg]
-            .whereType<String>()
-            .where((s) => s.trim().isNotEmpty)
-            .join('\n');
+        final msg = [
+          result['message'],
+          detailMsg,
+        ].whereType<String>().where((s) => s.trim().isNotEmpty).join('\n');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -65,10 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -123,7 +121,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.person_add, size: 72, color: theme.primaryColor),
+                      Icon(
+                        Icons.person_add,
+                        size: 72,
+                        color: theme.primaryColor,
+                      ),
                       const SizedBox(height: 24),
                       Text(
                         'Create Account',
@@ -139,7 +141,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _nameController,
                         decoration: InputDecoration(
                           labelText: 'Full Name',
-                          prefixIcon: Icon(Icons.person, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.person,
+                            color: theme.primaryColor,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -158,7 +163,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _phoneController,
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
-                          prefixIcon: Icon(Icons.phone, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: theme.primaryColor,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -172,7 +180,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: Icon(Icons.email, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.email,
+                            color: theme.primaryColor,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -195,7 +206,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock, color: theme.primaryColor),
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: theme.primaryColor,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -204,7 +218,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: theme.primaryColor,
                             ),
                             onPressed: () {
-                              setState(() => _obscurePassword = !_obscurePassword);
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
                             },
                           ),
                           border: OutlineInputBorder(
@@ -262,8 +278,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Already have an account?",
-                              style: theme.textTheme.bodyMedium),
+                          Text(
+                            "Already have an account?",
+                            style: theme.textTheme.bodyMedium,
+                          ),
                           TextButton(
                             onPressed: _isLoading
                                 ? null
@@ -289,4 +307,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

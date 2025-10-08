@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/services/api_service.dart';
-import 'package:my_pro9/models/product.dart';
+import 'package:longtea_mobile/services/api_service.dart';
+import 'package:longtea_mobile/models/product.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
@@ -25,8 +25,10 @@ class ProductPage extends StatelessWidget {
             children: [
               Image.network(product.image.url, height: 200, fit: BoxFit.cover),
               SizedBox(height: 16),
-              Text(product.name,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(
+                product.name,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
               Text(product.description),
               SizedBox(height: 12),
               Text("Series: ${product.series}"),
@@ -38,10 +40,13 @@ class ProductPage extends StatelessWidget {
               Text("Toppings: ${product.toppings.join(", ")}"),
               SizedBox(height: 12),
               Text("Sizes:"),
-              ...product.sizes.map((s) =>
-                  Text("${s.label} - \$${s.price.toStringAsFixed(2)}")),
+              ...product.sizes.map(
+                (s) => Text("${s.label} - \$${s.price.toStringAsFixed(2)}"),
+              ),
               SizedBox(height: 12),
-              Text("Fasting Friendly: ${product.isFastingFriendly ? "Yes" : "No"}"),
+              Text(
+                "Fasting Friendly: ${product.isFastingFriendly ? "Yes" : "No"}",
+              ),
             ],
           );
         },

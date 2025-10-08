@@ -1,4 +1,4 @@
-package com.example.my_pro9
+package com.example.longtea_mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

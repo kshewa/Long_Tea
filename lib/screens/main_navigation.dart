@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/screens/preorder_screen.dart';
+import 'package:longtea_mobile/screens/preorder_screen.dart';
 
 import 'home_screen.dart';
 import 'loyalty_screen.dart';
@@ -21,8 +21,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const PreOrderScreen(preOrders: [],),
-    const CartScreen(), 
+    const PreOrderScreen(preOrders: []),
+    const CartScreen(),
     const LoyaltyScreen(),
     const FavoriteScreen(),
     const ProfileScreen(),
@@ -42,12 +42,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.grey[300]!,
-              width: 1,
-            ),
-          ),
+          border: Border(top: BorderSide(color: Colors.grey[300]!, width: 1)),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -60,7 +55,10 @@ class _MainNavigationState extends State<MainNavigation> {
           backgroundColor: Colors.white,
           selectedItemColor: const Color(0xFF1E3A8A),
           unselectedItemColor: const Color(0xFF6B7280),
-          selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
           unselectedLabelStyle: const TextStyle(fontSize: 12),
           items: const [
             BottomNavigationBarItem(
@@ -71,7 +69,8 @@ class _MainNavigationState extends State<MainNavigation> {
               icon: Icon(Icons.shopping_bag, size: 24),
               label: 'Preorders',
             ),
-            BottomNavigationBarItem( // Add Cart item
+            BottomNavigationBarItem(
+              // Add Cart item
               icon: Icon(Icons.shopping_cart, size: 24),
               label: 'Cart',
             ),
@@ -93,4 +92,3 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 }
-

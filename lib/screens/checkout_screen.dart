@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/screens/main_navigation.dart';
+import 'package:longtea_mobile/screens/main_navigation.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
@@ -18,7 +18,7 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _promoController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  
+
   double discount = 0.00;
   double extras = 0.00;
   double serviceCharge = 0.00;
@@ -85,8 +85,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.cartItems.isNotEmpty 
-                              ? widget.cartItems.first['name'] 
+                          widget.cartItems.isNotEmpty
+                              ? widget.cartItems.first['name']
                               : 'Matcha Milk Tea',
                           style: const TextStyle(
                             fontSize: 16,
@@ -113,15 +113,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             // Promo Code Section
             const Text(
               'Promo Code',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                
                 Expanded(
                   child: TextField(
                     controller: _promoController,
@@ -134,7 +130,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         borderSide: BorderSide(color: Colors.grey[300]!),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -147,7 +145,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 14),
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                   ),
                   child: const Text(
                     'Apply',
@@ -159,11 +159,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ],
             ),
-
-          
-
-          
-            
 
             const SizedBox(height: 24),
 
@@ -219,37 +214,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
             const SizedBox(height: 32),
 
-        
-                  // Confirm Order Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Navigate directly to PreordersScreen
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainNavigation(initialTab: 1),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E3A8A),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Confirm Order',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+            // Confirm Order Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate directly to PreordersScreen
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainNavigation(initialTab: 1),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                ),
+                child: const Text(
+                  'Confirm Order',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/services/cart_service.dart';
+import 'package:longtea_mobile/services/cart_service.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -13,7 +13,8 @@ class CartScreen extends StatelessWidget {
         valueListenable: cart.itemsNotifier,
         builder: (context, items, _) {
           final list = items as List;
-          if (list.isEmpty) return const Center(child: Text('Your cart is empty'));
+          if (list.isEmpty)
+            return const Center(child: Text('Your cart is empty'));
           return Column(
             children: [
               Expanded(
@@ -22,10 +23,14 @@ class CartScreen extends StatelessWidget {
                   itemBuilder: (_, i) {
                     final it = list[i];
                     return ListTile(
-                      leading: it.imageUrl != null ? Image.network(it.imageUrl!) : null,
+                      leading: it.imageUrl != null
+                          ? Image.network(it.imageUrl!)
+                          : null,
                       title: Text(it.name),
                       subtitle: Text('x${it.quantity}'),
-                      trailing: Text('\$${(it.unitPrice * it.quantity).toStringAsFixed(2)}'),
+                      trailing: Text(
+                        '\$${(it.unitPrice * it.quantity).toStringAsFixed(2)}',
+                      ),
                       onLongPress: () => cart.remove(it.productId),
                     );
                   },

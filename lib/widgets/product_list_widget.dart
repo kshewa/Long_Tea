@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/models/product.dart';
-import 'package:my_pro9/models/pagination.dart';
-import 'package:my_pro9/services/api_service.dart';
-import 'package:my_pro9/widgets/product_card.dart';
+import 'package:longtea_mobile/models/product.dart';
+import 'package:longtea_mobile/models/pagination.dart';
+import 'package:longtea_mobile/services/api_service.dart';
+import 'package:longtea_mobile/widgets/product_card.dart';
 
 class ProductListWidget extends StatefulWidget {
   final Function(Product) onProductTap;
@@ -145,12 +145,16 @@ class _ProductListWidgetState extends State<ProductListWidget> {
   void _applyFilters() {
     setState(() {
       filteredProducts = products.where((product) {
-        bool matchesSearch = searchQuery.isEmpty ||
+        bool matchesSearch =
+            searchQuery.isEmpty ||
             product.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            product.description.toLowerCase().contains(
+              searchQuery.toLowerCase(),
+            ) ||
             product.series.toLowerCase().contains(searchQuery.toLowerCase());
 
-        bool matchesSeries = selectedSeries == null || product.series == selectedSeries;
+        bool matchesSeries =
+            selectedSeries == null || product.series == selectedSeries;
 
         return matchesSearch && matchesSeries;
       }).toList();
@@ -182,11 +186,9 @@ class _ProductListWidgetState extends State<ProductListWidget> {
       children: [
         // Search and Filter Bar
         _buildSearchAndFilterBar(),
-        
+
         // Product Grid
-        Expanded(
-          child: _buildProductGrid(),
-        ),
+        Expanded(child: _buildProductGrid()),
       ],
     );
   }
@@ -236,9 +238,9 @@ class _ProductListWidgetState extends State<ProductListWidget> {
               _applyFilters();
             },
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Filter Row
           Row(
             children: [
@@ -257,10 +259,12 @@ class _ProductListWidgetState extends State<ProductListWidget> {
                       value: null,
                       child: Text('All Series'),
                     ),
-                    ...availableSeries.map((series) => DropdownMenuItem<String>(
-                      value: series,
-                      child: Text(series),
-                    )),
+                    ...availableSeries.map(
+                      (series) => DropdownMenuItem<String>(
+                        value: series,
+                        child: Text(series),
+                      ),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -270,9 +274,9 @@ class _ProductListWidgetState extends State<ProductListWidget> {
                   },
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Sort Filter
               Expanded(
                 child: DropdownButtonFormField<String>(
@@ -322,9 +326,7 @@ class _ProductListWidgetState extends State<ProductListWidget> {
 
   Widget _buildProductGrid() {
     if (isLoading && products.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (hasError && products.isEmpty) {
@@ -332,11 +334,7 @@ class _ProductListWidgetState extends State<ProductListWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               'Error loading products',
@@ -363,11 +361,7 @@ class _ProductListWidgetState extends State<ProductListWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.search_off,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.search_off, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               'No products found',
@@ -397,9 +391,7 @@ class _ProductListWidgetState extends State<ProductListWidget> {
         itemCount: filteredProducts.length + (isLoadingMore ? 2 : 0),
         itemBuilder: (context, index) {
           if (index >= filteredProducts.length) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final product = filteredProducts[index];

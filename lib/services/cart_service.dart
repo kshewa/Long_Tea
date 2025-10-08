@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_pro9/models/cart_item.dart';
+import 'package:longtea_mobile/models/cart_item.dart';
 
 class CartService {
   CartService._();
   static final CartService instance = CartService._();
 
-  final ValueNotifier<List<CartItem>> itemsNotifier = ValueNotifier<List<CartItem>>(<CartItem>[]);
+  final ValueNotifier<List<CartItem>> itemsNotifier =
+      ValueNotifier<List<CartItem>>(<CartItem>[]);
 
   List<CartItem> get items => itemsNotifier.value;
 
@@ -28,7 +29,8 @@ class CartService {
   }
 
   void remove(String productId) {
-    final list = List<CartItem>.from(itemsNotifier.value)..removeWhere((e) => e.productId == productId);
+    final list = List<CartItem>.from(itemsNotifier.value)
+      ..removeWhere((e) => e.productId == productId);
     itemsNotifier.value = list;
   }
 

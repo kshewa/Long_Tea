@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_pro9/services/cart_service.dart';
-import 'package:my_pro9/models/cart_item.dart';
+import 'package:longtea_mobile/services/cart_service.dart';
+import 'package:longtea_mobile/models/cart_item.dart';
 
 class ProductCard extends StatefulWidget {
   final String name;
@@ -70,7 +70,7 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ),
               ),
-  
+
               Positioned(
                 top: 4,
                 right: 4,
@@ -138,10 +138,7 @@ class _ProductCardState extends State<ProductCard> {
                 const SizedBox(height: 2),
                 Text(
                   widget.subtitle,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -161,9 +158,17 @@ class _ProductCardState extends State<ProductCard> {
                       onTap: () {
                         CartService.instance.addOrIncrease(
                           CartItem(
-                            productId: widget.name, // replace with real product id if available
+                            productId: widget
+                                .name, // replace with real product id if available
                             name: widget.name,
-                            unitPrice: double.tryParse(widget.price.replaceAll(RegExp(r'[^0-9\.]'), '')) ?? 0,
+                            unitPrice:
+                                double.tryParse(
+                                  widget.price.replaceAll(
+                                    RegExp(r'[^0-9\.]'),
+                                    '',
+                                  ),
+                                ) ??
+                                0,
                             quantity: 1,
                             imageUrl: widget.imagePath,
                           ),
@@ -206,7 +211,9 @@ class _ProductCardState extends State<ProductCard> {
       width: 20,
       height: 20,
       decoration: BoxDecoration(
-        color: size == 'M' ? const Color.fromARGB(255, 5, 27, 88) : Colors.grey[300],
+        color: size == 'M'
+            ? const Color.fromARGB(255, 5, 27, 88)
+            : Colors.grey[300],
         shape: BoxShape.circle,
       ),
       child: Center(
