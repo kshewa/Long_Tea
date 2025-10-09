@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:longtea_mobile/models/product.dart';
 import 'package:longtea_mobile/models/api_response.dart';
 import 'package:longtea_mobile/services/http_client.dart';
+import 'package:longtea_mobile/constants/api_url.dart';
 
 class ApiService {
-  static const String baseUrl = "https://longtea-backend.onrender.com/api/v1";
   static const Duration timeout = Duration(seconds: 30);
 
   // Fetch products with pagination and search
@@ -40,7 +40,7 @@ class ApiService {
       }
 
       final uri = Uri.parse(
-        "$baseUrl/product",
+        ApiUrl.productUrl,
       ).replace(queryParameters: queryParams);
       final response = await authHttpClient.get(uri).timeout(timeout);
 
@@ -74,7 +74,7 @@ class ApiService {
   static Future<Product> fetchProductById(String productId) async {
     try {
       final response = await authHttpClient
-          .get(Uri.parse("$baseUrl/product/$productId"))
+          .get(Uri.parse("${ApiUrl.productUrl}/$productId"))
           .timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -105,7 +105,7 @@ class ApiService {
   static Future<List<String>> fetchSeries() async {
     try {
       final response = await authHttpClient
-          .get(Uri.parse("$baseUrl/product/series"))
+          .get(Uri.parse("${ApiUrl.productUrl}/series"))
           .timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -128,6 +128,41 @@ class ApiService {
         throw Exception("Invalid response format");
       } else {
         throw Exception("Error fetching series: $e");
+      }
+    }
+  }
+
+  // Fetch product with available stores
+  static Future<ProductWithStoresResponse> fetchProductWithStores(
+    String productId,
+  ) async {
+    try {
+      final response = await authHttpClient
+          .get(Uri.parse("${ApiUrl.productUrl}/$productId/stores"))
+          .timeout(timeout);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse["success"] == true) {
+          return ProductWithStoresResponse.fromJson(jsonResponse);
+        } else {
+          throw Exception(
+            jsonResponse["message"] ?? "Failed to fetch product with stores",
+          );
+        }
+      } else {
+        throw Exception(
+          "HTTP ${response.statusCode}: ${response.reasonPhrase}",
+        );
+      }
+    } catch (e) {
+      if (e is http.ClientException) {
+        throw Exception("Network error: ${e.message}");
+      } else if (e is FormatException) {
+        throw Exception("Invalid response format");
+      } else {
+        throw Exception("Error fetching product with stores: $e");
       }
     }
   }

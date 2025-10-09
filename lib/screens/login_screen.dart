@@ -1,67 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:longtea_mobile/screens/main_navigation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:longtea_mobile/providers/auth_notifier.dart';
 import 'package:longtea_mobile/screens/register_screen.dart';
-import 'package:longtea_mobile/services/auth_service.dart';
+import 'package:longtea_mobile/screens/forgot_password_screen.dart';
+import 'package:longtea_mobile/screens/main_navigation.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
 
-  bool _isLoading = false;
   bool _obscurePassword = true;
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
-    try {
-      final response = await _authService.login(
-        _emailOrPhoneController.text.trim(),
-        _passwordController.text.trim(),
-      );
-      if (response["success"] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Login successful!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        await Future.delayed(const Duration(milliseconds: 800));
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainNavigation(initialTab: 0),
-          ),
-        );
-      } else {
-        final List<dynamic> details =
-            (response['details'] as List?) ?? const [];
-        final detailMsg = details.isNotEmpty ? details.join('\n') : null;
-        final msg = [
-          response['message'],
-          detailMsg,
-        ].whereType<String>().where((s) => s.trim().isNotEmpty).join('\n');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg.isEmpty ? 'Login failed' : msg),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+
+    final emailOrPhone = _emailOrPhoneController.text.trim();
+    final password = _passwordController.text.trim();
+
+    debugPrint('=== LOGIN SCREEN DEBUG ===');
+    debugPrint('Email/Phone: $emailOrPhone');
+    debugPrint('Password Length: ${password.length}');
+    debugPrint('Form Valid: ${_formKey.currentState!.validate()}');
+    debugPrint('==========================');
+
+    final authNotifier = ref.read(authProvider.notifier);
+
+    final success = await authNotifier.login(emailOrPhone, password);
+
+    debugPrint('=== LOGIN SCREEN RESULT ===');
+    debugPrint('Login Success: $success');
+    debugPrint('Mounted: $mounted');
+    debugPrint('===========================');
+
+    if (!mounted) return;
+
+    if (success) {
+      debugPrint('=== LOGIN SCREEN SUCCESS ===');
+      debugPrint('Showing success snackbar and navigating to home');
+      debugPrint('============================');
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text("Login successful!"),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
       );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+
+      // Navigate to main navigation and clear the navigation stack
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const MainNavigation(initialTab: 0),
+        ),
+        (route) => false,
+      );
+    } else {
+      final errorMessage =
+          ref.read(authProvider).errorMessage ?? 'Login failed';
+
+      debugPrint('=== LOGIN SCREEN FAILURE ===');
+      debugPrint('Error Message: $errorMessage');
+      debugPrint('=============================');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -75,6 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isLoading = ref.watch(isLoadingProvider);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
@@ -108,6 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Email or Phone Field
                       TextFormField(
                         controller: _emailOrPhoneController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Email or Phone Number',
                           prefixIcon: Icon(
@@ -138,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           prefixIcon: Icon(
@@ -172,12 +187,37 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
+                      // Forgot Password Link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ForgotPasswordScreen(),
+                                    ),
+                                  );
+                                },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: theme.primaryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       // Login Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -187,9 +227,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             foregroundColor: Colors.white,
                             elevation: 4,
                           ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Text(
                                   'Login',

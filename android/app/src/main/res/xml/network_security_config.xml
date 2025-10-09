@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Allow HTTP traffic for development and testing -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+    
+    <!-- Allow HTTPS traffic to your backend -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">longtea-backend.onrender.com</domain>
+        <domain includeSubdomains="true">api.longtea.com</domain>
+        <domain includeSubdomains="true">render.com</domain>
+        <domain includeSubdomains="true">onrender.com</domain>
+    </domain-config>
+    
+    <!-- Default configuration -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust the system certificate authorities -->
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+</network-security-config>

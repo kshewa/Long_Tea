@@ -1,75 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:longtea_mobile/providers/auth_notifier.dart';
 import 'package:longtea_mobile/screens/login_screen.dart';
 
-import 'package:longtea_mobile/services/register_services.dart';
-
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  bool _isLoading = false;
   bool _obscurePassword = true;
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final authNotifier = ref.read(authProvider.notifier);
 
-    try {
-      final service = RegisterService();
-      final result = await service.register(
-        fullName: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phoneNumber: _phoneController.text.trim(),
-        password: _passwordController.text.trim(),
-        role: 'customer',
-      );
+    // Get email and phone values
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
 
-      if (result['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result['message'] ?? 'Registration successful! Please login.',
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      } else {
-        final List<dynamic> details = (result['details'] as List?) ?? const [];
-        final detailMsg = details.isNotEmpty ? details.join('\n') : null;
-        final msg = [
-          result['message'],
-          detailMsg,
-        ].whereType<String>().where((s) => s.trim().isNotEmpty).join('\n');
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg.isEmpty ? 'Registration failed' : msg),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+    // Validate that at least one is provided
+    if (email.isEmpty && phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('Please provide either an email or phone number'),
+          backgroundColor: Colors.red,
+        ),
       );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
+    final success = await authNotifier.register(
+      fullName: _nameController.text.trim(),
+      email: email.isNotEmpty ? email : null,
+      phoneNumber: phone.isNotEmpty ? phone : null,
+      password: _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful! Please login.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      final errorMessage =
+          ref.read(authProvider).errorMessage ?? 'Registration failed';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -86,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
+    final isLoading = ref.watch(isLoadingProvider);
 
     return Scaffold(
       body: Container(
@@ -139,6 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Full Name Field
                       TextFormField(
                         controller: _nameController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Full Name',
                           prefixIcon: Icon(
@@ -161,6 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Phone Field
                       TextFormField(
                         controller: _phoneController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
                           prefixIcon: Icon(
@@ -172,12 +171,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          // Phone is optional, but if provided must be at least 7 digits
+                          if (value != null && value.isNotEmpty) {
+                            if (!RegExp(r'^[0-9]{7,}$').hasMatch(value)) {
+                              return 'Please enter a valid phone number (at least 7 digits)';
+                            }
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
 
                       // Email Field
                       TextFormField(
                         controller: _emailController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Email',
                           prefixIcon: Icon(
@@ -190,10 +199,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
+                          // Email is optional, but if provided must be valid
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !value.contains('@')) {
                             return 'Please enter a valid email';
                           }
                           return null;
@@ -204,6 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           prefixIcon: Icon(
@@ -245,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _register,
+                          onPressed: isLoading ? null : _register,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -255,7 +265,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             foregroundColor: Colors.white,
                             elevation: 4,
                           ),
-                          child: _isLoading
+                          child: isLoading
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
@@ -283,7 +293,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: theme.textTheme.bodyMedium,
                           ),
                           TextButton(
-                            onPressed: _isLoading
+                            onPressed: isLoading
                                 ? null
                                 : () => Navigator.pop(context),
                             child: Text(

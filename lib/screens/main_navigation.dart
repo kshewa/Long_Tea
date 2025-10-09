@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:longtea_mobile/screens/preorder_screen.dart';
 
 import 'home_screen.dart';
 import 'loyalty_screen.dart';
 import 'favorite_screen.dart';
 import 'profile_screen.dart';
-import 'cart_screen.dart'; // Add this import
+import 'cart_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   final int initialTab;
@@ -21,7 +20,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const PreOrderScreen(preOrders: []),
     const CartScreen(),
     const LoyaltyScreen(),
     const FavoriteScreen(),
@@ -66,11 +64,6 @@ class _MainNavigationState extends State<MainNavigation> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag, size: 24),
-              label: 'Preorders',
-            ),
-            BottomNavigationBarItem(
-              // Add Cart item
               icon: Icon(Icons.shopping_cart, size: 24),
               label: 'Cart',
             ),

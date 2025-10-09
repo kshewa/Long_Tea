@@ -1,5 +1,6 @@
 import 'product.dart';
 import 'pagination.dart';
+import 'store.dart';
 
 class ApiResponse<T> {
   final bool success;
@@ -42,10 +43,7 @@ class ProductListResponse {
   final List<Product> products;
   final Pagination pagination;
 
-  ProductListResponse({
-    required this.products,
-    required this.pagination,
-  });
+  ProductListResponse({required this.products, required this.pagination});
 
   factory ProductListResponse.fromJson(Map<String, dynamic> json) {
     return ProductListResponse(
@@ -53,6 +51,33 @@ class ProductListResponse {
           .map((item) => Product.fromJson(item))
           .toList(),
       pagination: Pagination.fromJson(json["pagination"] ?? {}),
+    );
+  }
+}
+
+class ProductWithStoresResponse {
+  final Product product;
+  final List<Store> availableStores;
+
+  ProductWithStoresResponse({
+    required this.product,
+    required this.availableStores,
+  });
+
+  factory ProductWithStoresResponse.fromJson(Map<String, dynamic> json) {
+    // The API response structure has product fields directly in data
+    // and stores as a separate array within data
+    final data = json["data"];
+
+    // Create a copy of data for product parsing (excluding stores)
+    final productData = Map<String, dynamic>.from(data);
+    productData.remove('stores'); // Remove stores array from product data
+
+    return ProductWithStoresResponse(
+      product: Product.fromJson(productData),
+      availableStores: (data["stores"] as List? ?? [])
+          .map((storeItem) => Store.fromJson(storeItem))
+          .toList(),
     );
   }
 }

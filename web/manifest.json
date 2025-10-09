@@ -1,13 +1,21 @@
 {
-    "name": "longtea_mobile",
-    "short_name": "longtea_mobile",
+    "name": "Long Tea Mobile",
+    "short_name": "Long Tea",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1E3A8A",
+    "theme_color": "#1E3A8A",
+    "description": "Long Tea Mobile App - Premium Tea Experience",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "scope": "/",
+    "lang": "en",
+    "categories": ["food", "lifestyle", "shopping"],
+    "permissions": [
+        "geolocation",
+        "camera",
+        "notifications"
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
