@@ -1,11 +1,20 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SessionManager {
+  static const String _boxName = 'authBox';
   static const String _keyAccessToken = 'accessToken';
   static const String _keyRefreshToken = 'refreshToken';
   static const String _keyUserJson = 'userJson';
   static const String _keyAccessTokenExpiresAt = 'accessTokenExpiresAt';
   static const String _keyRefreshTokenExpiresAt = 'refreshTokenExpiresAt';
+
+  /// Get or open the Hive box
+  static Future<Box> _getBox() async {
+    if (!Hive.isBoxOpen(_boxName)) {
+      return await Hive.openBox(_boxName);
+    }
+    return Hive.box(_boxName);
+  }
 
   /// Save authentication session with tokens and expiry times
   static Future<void> saveAuthSession({
@@ -15,26 +24,26 @@ class SessionManager {
     DateTime? accessTokenExpiresAt,
     DateTime? refreshTokenExpiresAt,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyAccessToken, accessToken);
+    final box = await _getBox();
+    await box.put(_keyAccessToken, accessToken);
 
     if (refreshToken != null) {
-      await prefs.setString(_keyRefreshToken, refreshToken);
+      await box.put(_keyRefreshToken, refreshToken);
     }
 
     if (userJson != null) {
-      await prefs.setString(_keyUserJson, userJson);
+      await box.put(_keyUserJson, userJson);
     }
 
     if (accessTokenExpiresAt != null) {
-      await prefs.setString(
+      await box.put(
         _keyAccessTokenExpiresAt,
         accessTokenExpiresAt.toIso8601String(),
       );
     }
 
     if (refreshTokenExpiresAt != null) {
-      await prefs.setString(
+      await box.put(
         _keyRefreshTokenExpiresAt,
         refreshTokenExpiresAt.toIso8601String(),
       );
@@ -42,23 +51,23 @@ class SessionManager {
   }
 
   static Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyAccessToken);
+    final box = await _getBox();
+    return box.get(_keyAccessToken) as String?;
   }
 
   static Future<String?> getRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyRefreshToken);
+    final box = await _getBox();
+    return box.get(_keyRefreshToken) as String?;
   }
 
   static Future<String?> getUserJson() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyUserJson);
+    final box = await _getBox();
+    return box.get(_keyUserJson) as String?;
   }
 
   static Future<DateTime?> getAccessTokenExpiresAt() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAtStr = prefs.getString(_keyAccessTokenExpiresAt);
+    final box = await _getBox();
+    final expiresAtStr = box.get(_keyAccessTokenExpiresAt) as String?;
     if (expiresAtStr != null) {
       try {
         return DateTime.parse(expiresAtStr);
@@ -70,8 +79,8 @@ class SessionManager {
   }
 
   static Future<DateTime?> getRefreshTokenExpiresAt() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAtStr = prefs.getString(_keyRefreshTokenExpiresAt);
+    final box = await _getBox();
+    final expiresAtStr = box.get(_keyRefreshTokenExpiresAt) as String?;
     if (expiresAtStr != null) {
       try {
         return DateTime.parse(expiresAtStr);
@@ -114,11 +123,11 @@ class SessionManager {
   }
 
   static Future<void> clear() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyAccessToken);
-    await prefs.remove(_keyRefreshToken);
-    await prefs.remove(_keyUserJson);
-    await prefs.remove(_keyAccessTokenExpiresAt);
-    await prefs.remove(_keyRefreshTokenExpiresAt);
+    final box = await _getBox();
+    await box.delete(_keyAccessToken);
+    await box.delete(_keyRefreshToken);
+    await box.delete(_keyUserJson);
+    await box.delete(_keyAccessTokenExpiresAt);
+    await box.delete(_keyRefreshTokenExpiresAt);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:longtea_mobile/providers/auth_notifier.dart';
 import 'package:longtea_mobile/screens/onboarding_screen.dart';
 import 'package:longtea_mobile/screens/home_screen.dart';
@@ -8,6 +9,10 @@ import 'package:longtea_mobile/screens/main_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
   runApp(const ProviderScope(child: LongTea()));
 }
 
