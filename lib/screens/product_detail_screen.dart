@@ -33,23 +33,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Future<void> _initializeProductDetails() async {
-    final cart = CartService.instance.cart;
+    // Always fetch cart from backend to get latest store info
+    await _fetchCartAndDetermineStore();
+  }
 
-    // If cart is empty or no store selected, fetch product with stores
-    if (cart == null || cart.isEmpty || cart.storeId == null) {
+  Future<void> _fetchCartAndDetermineStore() async {
+    setState(() {
+      isLoadingProductDetails = true;
+    });
+
+    try {
+      // Fetch cart from backend to check for existing store
+      final cart = await CartService.instance.getCart();
+
+      // If cart has items, use the cart's store (locked state)
+      if (cart.items.isNotEmpty && cart.storeId != null) {
+        setState(() {
+          selectedStoreId = cart.storeId;
+          updatedProduct = widget.product;
+
+          // Auto-select first size if available
+          if (widget.product.sizes.isNotEmpty && selectedSize == null) {
+            selectedSize = widget.product.sizes.first.label;
+          }
+
+          isLoadingProductDetails = false;
+        });
+      } else {
+        // Cart is empty, load product with available stores
+        await _loadProductWithStores();
+      }
+    } catch (e) {
+      // If cart fetch fails (e.g., empty cart 404), load product with stores
       await _loadProductWithStores();
-    } else {
-      // Cart has items - use the cart's store and skip API call
-      setState(() {
-        updatedProduct = widget.product;
-        selectedStoreId = cart.storeId;
-        isLoadingProductDetails = false;
-
-        // Auto-select first size if available
-        if (widget.product.sizes.isNotEmpty && selectedSize == null) {
-          selectedSize = widget.product.sizes.first.label;
-        }
-      });
     }
   }
 
@@ -139,6 +155,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     });
 
     try {
+      // Add to cart - backend will validate store consistency
       await CartService.instance.addToCart(
         productId: currentProduct.id,
         storeId: selectedStoreId!,
@@ -164,10 +181,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      // Show error message - backend may reject if store mismatch
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text(
+            e.toString().contains('Store mismatch')
+                ? 'Cannot add items from different stores. Please clear your cart first.'
+                : 'Error: ${e.toString()}',
+          ),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     } finally {
@@ -180,11 +203,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildStoreSection() {
+    // Check cart from service (already fetched from backend)
     final cart = CartService.instance.cart;
-    final bool isCartEmpty = cart == null || cart.isEmpty;
+    final bool hasCartItems = cart != null && cart.items.isNotEmpty;
 
-    // If cart has items, show locked store info
-    if (!isCartEmpty && cart.storeId != null) {
+    // If cart has items from backend, show locked store info
+    if (hasCartItems && cart.storeId != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -233,7 +257,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'All items must be from the same store',
+                        'Locked to cart items store',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
@@ -252,6 +276,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Icons.lock_rounded,
                     color: Colors.white,
                     size: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Clear your cart to change stores',
+                    style: TextStyle(fontSize: 12, color: Colors.blue[900]),
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:longtea_mobile/services/api_service.dart';
+import 'package:longtea_mobile/services/cart_service.dart';
 import 'package:longtea_mobile/models/product.dart';
 import 'package:longtea_mobile/screens/checkout_screen.dart';
 import 'package:longtea_mobile/providers/auth_notifier.dart';
@@ -64,6 +65,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _loadProductsSafely();
+    _loadCartFromBackend();
+  }
+
+  /// Load cart from backend to ensure store is synced
+  Future<void> _loadCartFromBackend() async {
+    try {
+      await CartService.instance.getCart();
+    } catch (e) {
+      // Silently fail - cart might be empty
+    }
   }
 
   Future<void> _loadProductsSafely() async {
