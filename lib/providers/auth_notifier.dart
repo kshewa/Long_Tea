@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
+import '../services/profile_service.dart';
 import '../services/session_manager.dart';
 
 /// Authentication state
@@ -37,6 +39,7 @@ class AuthState {
 /// Auth notifier for managing authentication state
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService = AuthService();
+  final ProfileService _profileService = ProfileService();
   Timer? _tokenRefreshTimer;
 
   AuthNotifier() : super(const AuthState(isLoading: true)) {
@@ -268,9 +271,87 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState(isAuthenticated: false);
   }
 
-  /// Update user data
+  /// Update user data locally (without backend sync)
   void updateUser(User user) {
     state = state.copyWith(user: user);
+  }
+
+  /// Update user profile with backend sync
+  Future<Map<String, dynamic>> updateProfile({
+    String? fullName,
+    String? email,
+    String? phoneNumber,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final result = await _profileService.updateProfile(
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+      );
+
+      if (result['success'] == true && result['data'] is User) {
+        final updatedUser = result['data'] as User;
+
+        // Update state with new user data
+        state = state.copyWith(
+          user: updatedUser,
+          isLoading: false,
+          errorMessage: null,
+        );
+
+        // Persist updated user to session
+        await SessionManager.saveUserJson(jsonEncode(updatedUser.toJson()));
+
+        debugPrint('Profile updated successfully: ${updatedUser.toJson()}');
+
+        return {
+          "success": true,
+          "message": result['message'] ?? "Profile updated successfully",
+          "user": updatedUser,
+        };
+      } else {
+        // Show main message with detail if available
+        String errorMessage = result['message'] ?? 'Failed to update profile';
+        if (result['details'] != null &&
+            result['details'] is List &&
+            (result['details'] as List).isNotEmpty) {
+          final details = (result['details'] as List).join(', ');
+          errorMessage = '$errorMessage: $details';
+        }
+
+        state = state.copyWith(isLoading: false, errorMessage: errorMessage);
+
+        return {"success": false, "message": errorMessage};
+      }
+    } catch (e) {
+      debugPrint('Update profile error: $e');
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+
+      return {"success": false, "message": e.toString()};
+    }
+  }
+
+  /// Fetch user profile from backend
+  Future<void> fetchProfile() async {
+    try {
+      final result = await _profileService.getProfile();
+
+      if (result['success'] == true && result['data'] is User) {
+        final user = result['data'] as User;
+
+        // Update state with fetched user data
+        state = state.copyWith(user: user);
+
+        // Persist updated user to session
+        await SessionManager.saveUserJson(jsonEncode(user.toJson()));
+
+        debugPrint('Profile fetched successfully: ${user.toJson()}');
+      }
+    } catch (e) {
+      debugPrint('Fetch profile error: $e');
+    }
   }
 
   @override

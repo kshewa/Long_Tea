@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:longtea_mobile/providers/auth_notifier.dart';
-import 'package:longtea_mobile/constants/api_url.dart';
-import 'package:longtea_mobile/services/http_client.dart';
 import 'package:longtea_mobile/screens/edit_profile_screen.dart';
 
 const String kImagePath = 'assets/images/';
@@ -28,10 +26,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _callGetProfileInBackground() async {
     try {
-      await authHttpClient.get(
-        Uri.parse(ApiUrl.profileUrl),
-        headers: {"Content-Type": "application/json"},
-      );
+      // Fetch profile from backend and update state
+      await ref.read(authProvider.notifier).fetchProfile();
     } catch (_) {
       // Silently ignore; background fetch only
     }

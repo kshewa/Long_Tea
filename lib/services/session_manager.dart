@@ -65,6 +65,12 @@ class SessionManager {
     return box.get(_keyUserJson) as String?;
   }
 
+  /// Save user JSON separately (for profile updates)
+  static Future<void> saveUserJson(String userJson) async {
+    final box = await _getBox();
+    await box.put(_keyUserJson, userJson);
+  }
+
   static Future<DateTime?> getAccessTokenExpiresAt() async {
     final box = await _getBox();
     final expiresAtStr = box.get(_keyAccessTokenExpiresAt) as String?;

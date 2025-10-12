@@ -32,33 +32,66 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
+  Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
-      // Get current user
-      final currentUser = ref.read(currentUserProvider);
-      if (currentUser != null) {
-        // Create updated user
-        final updatedUser = currentUser.copyWith(
-          fullName: _nameController.text.trim(),
-          email: _emailController.text.trim().isNotEmpty
-              ? _emailController.text.trim()
-              : null,
-          phoneNumber: _phoneController.text.trim().isNotEmpty
-              ? _phoneController.text.trim()
-              : null,
-        );
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
 
-        // Update user in provider
-        ref.read(authProvider.notifier).updateUser(updatedUser);
+      try {
+        // Call backend API to update profile
+        final result = await ref
+            .read(authProvider.notifier)
+            .updateProfile(
+              fullName: _nameController.text.trim(),
+              email: _emailController.text.trim().isNotEmpty
+                  ? _emailController.text.trim()
+                  : null,
+              phoneNumber: _phoneController.text.trim().isNotEmpty
+                  ? _phoneController.text.trim()
+                  : null,
+            );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // Hide loading indicator
+        if (mounted) Navigator.pop(context);
 
-        Navigator.pop(context);
+        if (result['success'] == true) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  result['message'] ?? 'Profile updated successfully',
+                ),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(result['message'] ?? 'Failed to update profile'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        // Hide loading indicator
+        if (mounted) Navigator.pop(context);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
