@@ -5,6 +5,7 @@ import 'loyalty_screen.dart';
 import 'favorite_screen.dart';
 import 'profile_screen.dart';
 import 'cart_screen.dart';
+import 'orders_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   final int initialTab;
@@ -18,8 +19,9 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   late int _currentIndex;
 
-  final List<Widget> _screens = [
+  late final List<Widget> _screens = [
     const HomeScreen(),
+    const OrdersScreen(),
     const CartScreen(),
     const LoyaltyScreen(),
     const FavoriteScreen(),
@@ -62,6 +64,10 @@ class _MainNavigationState extends State<MainNavigation> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home, size: 24),
               label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long, size: 24),
+              label: 'Orders',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart, size: 24),

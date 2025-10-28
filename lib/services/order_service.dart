@@ -52,6 +52,34 @@ class OrderService {
     }
   }
 
+  Future<List<Order>> fetchOrders() async {
+    final uri = Uri.parse(ApiUrl.orderUrl);
+
+    try {
+      final response = await authHttpClient.get(uri).timeout(_timeout);
+
+      final decoded = _decodeBody(response);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = decoded['data'];
+        if (data is List) {
+          return data
+              .map((order) => Order.fromJson(order as Map<String, dynamic>))
+              .toList();
+        }
+        return [];
+      }
+
+      if (response.statusCode == 404) {
+        return [];
+      }
+
+      throw OrderException.fromResponse(decoded, response.statusCode);
+    } on http.ClientException catch (e) {
+      throw OrderException(message: 'Network error: ${e.message}');
+    }
+  }
+
   Map<String, dynamic> _decodeBody(http.Response response) {
     if (response.body.isEmpty) return {};
     try {

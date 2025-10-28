@@ -4,6 +4,8 @@ class Order {
   final String id;
   final String userId;
   final String storeId;
+  final String? storeName;
+  final String? storeLocation;
   final double total;
   final String status;
   final DateTime pickupTime;
@@ -11,11 +13,16 @@ class Order {
   final DateTime? updatedAt;
   final List<OrderItem> items;
   final String? paymentId;
+  final String? paymentStatus;
+  final double? paymentAmount;
+  final int? paymentRetryCount;
 
   const Order({
     required this.id,
     required this.userId,
     required this.storeId,
+    this.storeName,
+    this.storeLocation,
     required this.total,
     required this.status,
     required this.pickupTime,
@@ -23,6 +30,9 @@ class Order {
     this.updatedAt,
     this.items = const [],
     this.paymentId,
+    this.paymentStatus,
+    this.paymentAmount,
+    this.paymentRetryCount,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -31,13 +41,36 @@ class Order {
 
     final userId = _extractId(user) ?? json['userId']?.toString() ?? '';
     final storeId = _extractId(store) ?? json['storeId']?.toString() ?? '';
+    String? storeName;
+    String? storeLocation;
+    if (store is Map) {
+      storeName = store['name']?.toString();
+      storeLocation = store['location']?.toString();
+    }
 
     final itemsJson = (json['items'] as List?) ?? [];
+
+    final paymentMap = json['payment'] ?? json['paymentId'];
+    String? paymentId = _extractId(paymentMap);
+    String? paymentStatus;
+    double? paymentAmount;
+    int? paymentRetryCount;
+    if (paymentMap is Map) {
+      paymentStatus =
+          paymentMap['Paymentstatus']?.toString() ??
+          paymentMap['status']?.toString();
+      paymentAmount = _asDouble(paymentMap['amount']);
+      paymentRetryCount = paymentMap['retryCount'] is num
+          ? (paymentMap['retryCount'] as num).toInt()
+          : int.tryParse(paymentMap['retryCount']?.toString() ?? '');
+    }
 
     return Order(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       userId: userId,
       storeId: storeId,
+      storeName: storeName,
+      storeLocation: storeLocation,
       total: _asDouble(json['total']),
       status: json['status']?.toString() ?? 'pending',
       pickupTime: _parseDate(json['pickupTime']) ?? DateTime.now(),
@@ -46,7 +79,10 @@ class Order {
       items: itemsJson
           .map((item) => OrderItem.fromJson(item as Map<String, dynamic>))
           .toList(),
-      paymentId: _extractId(json['paymentId']),
+      paymentId: paymentId,
+      paymentStatus: paymentStatus,
+      paymentAmount: paymentAmount,
+      paymentRetryCount: paymentRetryCount,
     );
   }
 
@@ -55,6 +91,8 @@ class Order {
       'id': id,
       'userId': userId,
       'storeId': storeId,
+      'storeName': storeName,
+      'storeLocation': storeLocation,
       'total': total,
       'status': status,
       'pickupTime': pickupTime.toIso8601String(),
@@ -62,6 +100,9 @@ class Order {
       'updatedAt': updatedAt?.toIso8601String(),
       'items': items.map((item) => item.toJson()).toList(),
       'paymentId': paymentId,
+      'paymentStatus': paymentStatus,
+      'paymentAmount': paymentAmount,
+      'paymentRetryCount': paymentRetryCount,
     };
   }
 
@@ -69,6 +110,8 @@ class Order {
     String? id,
     String? userId,
     String? storeId,
+    String? storeName,
+    String? storeLocation,
     double? total,
     String? status,
     DateTime? pickupTime,
@@ -76,11 +119,16 @@ class Order {
     DateTime? updatedAt,
     List<OrderItem>? items,
     String? paymentId,
+    String? paymentStatus,
+    double? paymentAmount,
+    int? paymentRetryCount,
   }) {
     return Order(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       storeId: storeId ?? this.storeId,
+      storeName: storeName ?? this.storeName,
+      storeLocation: storeLocation ?? this.storeLocation,
       total: total ?? this.total,
       status: status ?? this.status,
       pickupTime: pickupTime ?? this.pickupTime,
@@ -88,6 +136,9 @@ class Order {
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
       paymentId: paymentId ?? this.paymentId,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentAmount: paymentAmount ?? this.paymentAmount,
+      paymentRetryCount: paymentRetryCount ?? this.paymentRetryCount,
     );
   }
 
@@ -120,6 +171,8 @@ class Order {
 
 class OrderItem {
   final String productId;
+  final String? productName;
+  final String? productImage;
   final int quantity;
   final String size;
   final List<String> toppings;
@@ -130,6 +183,8 @@ class OrderItem {
 
   const OrderItem({
     required this.productId,
+    this.productName,
+    this.productImage,
     required this.quantity,
     required this.size,
     this.toppings = const [],
@@ -142,6 +197,17 @@ class OrderItem {
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     final product = json['product'] ?? json['productId'];
     final productId = Order._extractId(product) ?? '';
+    String? productName;
+    String? productImage;
+    if (product is Map) {
+      productName = product['name']?.toString();
+      final image = product['image'];
+      if (image is List && image.isNotEmpty) {
+        productImage = image.first['url']?.toString();
+      } else if (image is Map) {
+        productImage = image['url']?.toString();
+      }
+    }
 
     final basePrice = Order._asDouble(json['itemPrice']);
     final total = json['totalPrice'] != null
@@ -153,6 +219,8 @@ class OrderItem {
 
     return OrderItem(
       productId: productId,
+      productName: productName,
+      productImage: productImage,
       quantity: quantity,
       size: json['size']?.toString() ?? '',
       toppings: List<String>.from(json['toppings'] ?? const []),
@@ -166,6 +234,8 @@ class OrderItem {
   Map<String, dynamic> toJson() {
     return {
       'productId': productId,
+      'productName': productName,
+      'productImage': productImage,
       'quantity': quantity,
       'size': size,
       'toppings': toppings,
@@ -180,8 +250,8 @@ class OrderItem {
     return CartItem(
       itemId: productId,
       productId: productId,
-      productName: name,
-      productImage: image,
+      productName: productName ?? name,
+      productImage: productImage ?? image,
       quantity: quantity,
       size: size,
       toppings: toppings,
