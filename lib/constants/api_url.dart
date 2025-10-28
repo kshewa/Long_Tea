@@ -22,4 +22,10 @@ class ApiUrl {
   // Store endpoints
   static String storeUrl = "$baseUrl/store";
   static String storeProductsUrl = "$baseUrl/store-products";
+
+  // Order endpoints
+  static String orderUrl = "$baseUrl/order";
+
+  // Payment endpoints
+  static String paymentUrl = "$baseUrl/payment";
 }

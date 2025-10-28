@@ -396,10 +396,7 @@ class _ProductListWidgetState extends State<ProductListWidget> {
 
           final product = filteredProducts[index];
           return ProductCard(
-            name: product.name,
-            subtitle: product.description,
-            price: product.priceRange,
-            imagePath: product.image.url,
+            product: product,
             isFavorite: widget.favorites[product.id] ?? false,
             onAddPressed: () => widget.onAddToCart(product),
             onFavoritePressed: () => widget.onToggleFavorite(product),

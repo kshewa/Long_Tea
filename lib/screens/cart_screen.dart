@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:longtea_mobile/services/cart_service.dart';
 import 'package:longtea_mobile/models/cart.dart';
 import 'package:longtea_mobile/models/cart_item.dart';
+import 'package:longtea_mobile/screens/checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -129,6 +130,42 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  Future<void> _handleCheckout(Cart cart) async {
+    if (cart.storeId == null || cart.storeId!.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Missing store information for this cart.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (context) => CheckoutScreen(cart: cart)),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    await _loadCart();
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order placed successfully.'),
+          backgroundColor: Color(0xFF1E3A8A),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,6 +211,11 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   );
                 }
+
+                final canCheckout =
+                    cart.isNotEmpty &&
+                    cart.storeId != null &&
+                    cart.storeId!.isNotEmpty;
 
                 return Column(
                   children: [
@@ -312,19 +354,9 @@ class _CartScreenState extends State<CartScreen> {
                                 Expanded(
                                   flex: 2,
                                   child: ElevatedButton(
-                                    onPressed: () {
-                                      // Navigate to checkout
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Checkout feature coming soon!',
-                                          ),
-                                          backgroundColor: Colors.blue,
-                                        ),
-                                      );
-                                    },
+                                    onPressed: canCheckout
+                                        ? () => _handleCheckout(cart)
+                                        : null,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF1E3A8A),
                                       foregroundColor: Colors.white,
@@ -390,27 +422,35 @@ class _CartItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Product Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: item.productImage != null
-                ? Image.network(
-                    item.productImage!,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: item.productImage != null
+                  ? Image.network(
+                      item.productImage!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 80,
+                        height: 80,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image, color: Colors.grey),
+                      ),
+                    )
+                  : Container(
                       width: 80,
                       height: 80,
                       color: Colors.grey[200],
                       child: const Icon(Icons.image, color: Colors.grey),
                     ),
-                  )
-                : Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  ),
+            ),
           ),
           const SizedBox(width: 12),
 

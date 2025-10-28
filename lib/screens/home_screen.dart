@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:longtea_mobile/services/api_service.dart';
 import 'package:longtea_mobile/services/cart_service.dart';
 import 'package:longtea_mobile/models/product.dart';
-import 'package:longtea_mobile/screens/checkout_screen.dart';
+import 'package:longtea_mobile/screens/cart_screen.dart';
 import 'package:longtea_mobile/providers/auth_notifier.dart';
 import '../widgets/product_card.dart';
 
@@ -777,10 +777,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CheckoutScreen(
-                                  cartItems: cartItems,
-                                  totalAmount: totalAmount,
-                                ),
+                                builder: (context) => const CartScreen(),
                               ),
                             );
                           },
